@@ -128,8 +128,8 @@ function normalizePlant(p){
   const slug=String(x.slug||'').trim();
   const fallback=FALLBACK_BOTANICAL_GLOBE[slug]||{};
   const remote=x.botanicalGlobe&&typeof x.botanicalGlobe==='object'?x.botanicalGlobe:{};
-  const rawCountries=Array.isArray(remote.countries)&&remote.countries.length?remote.countries:((Array.isArray(fallback.countries)?fallback.countries:[]));
-  const rawFocus=Array.isArray(remote.focus)&&remote.focus.length===2?remote.focus:((Array.isArray(fallback.focus)&&fallback.focus.length===2)?fallback.focus:[]);
+  const rawCountries=Array.isArray(remote.countries)&&remote.countries.length?remote.countries:(Array.isArray(fallback.countries)?fallback.countries:[]);
+  const rawFocus=Array.isArray(remote.focus)&&remote.focus.length===2?remote.focus:(Array.isArray(fallback.focus)&&fallback.focus.length===2?fallback.focus:[]);
   const rawLabel=String(remote.label||fallback.label||'').trim();
   return {
     slug,nama:String(x.nama||'').trim(),latin:String(x.latin||'').trim(),tagline:String(x.tagline||'').trim(),aksen:String(x.aksen||'#4C8C4A'),image:String(x.image||''),
@@ -149,7 +149,297 @@ function normalizePlant(p){
     }
   };
 }
-/* BOTANICAL GLOBE — data comes from each plant record. */
+function applyRemotePlants(payload){
+  const remote=Array.isArray(payload)?payload:(payload&&payload.data||payload&&payload.plants||[]);
+  if(!Array.isArray(remote)||!remote.length)return false;
+  const clean=remote.map(normalizePlant).filter(p=>p.slug&&p.nama);
+  if(!clean.length)return false;
+  plants=mergePendingPlants(clean);localStorage.setItem('nfp-content-cache',JSON.stringify(plants));route();return true;
+}
+function syncPlantsFromBackend(){
+  if(!BACKEND_URL||/PASTE_WEB_APP_URL|GANTI_URL/i.test(BACKEND_URL))return;
+  const cb='nfpData_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const script=document.createElement('script');
+  const sep=BACKEND_URL.includes('?')?'&':'?';
+  let done=false;
+  const finish=()=>{if(done)return;done=true;delete window[cb];script.remove()};
+  window[cb]=payload=>{try{applyRemotePlants(payload)}finally{finish()}};
+  script.onerror=()=>{console.warn('Nano Fruits Pedia: backend tidak dapat dihubungi, memakai data cache/fallback.');finish()};
+  script.src=BACKEND_URL+sep+'action=data&callback='+encodeURIComponent(cb)+'&_='+Date.now();
+  script.async=true;document.head.appendChild(script);setTimeout(finish,12000);
+};
+const CATEGORY_ORDER=['Buah','Herba','Tanaman Hias','Tanaman'];
+const FRUIT_GENERA=new Set(['mangifera','artocarpus','averroha','averroa','psidium','citrus','musa','carica','ananas','passiflora','nephelium','durio','garcinia','dimocarpus','syzygium','punica','pyrus','malus','citrullus','cucumis','avocado']);
+const wideCards=new Set(['mangga','lidah-buaya','jambu-air']);
+const $=s=>document.querySelector(s); const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const normalizeSignalText=s=>String(s??'').toLowerCase().replace(/[–—]/g,'-');
+function flattenValues(value){
+  if(value==null)return [];
+  if(Array.isArray(value))return value.flatMap(flattenValues);
+  if(typeof value==='object')return Object.entries(value).flatMap(([k,v])=>[k,...flattenValues(v)]);
+  return [String(value)];
+}
+function searchableText(p){
+  return [
+    p.nama,p.latin,p.tagline,
+    ...(p.deskripsi||[]),...(p.manfaat||[]),...(p.nutrisi||[]),
+    ...flattenValues(p.klasifikasi||{}),
+    ...flattenValues(p.morfologi||{}),
+    ...flattenValues(p.pertumbuhan||{}),
+    ...flattenValues(p.penggunaan||{})
+  ].join(' ').toLowerCase();
+}
+function objectFlag(obj,keys){
+  const wanted=keys.map(normalizeSignalText);
+  return Object.entries(obj||{}).some(([k,v])=>{
+    const key=normalizeSignalText(k);
+    if(!wanted.some(w=>key===w||key.includes(w)))return false;
+    if(v===true)return true;
+    const text=normalizeSignalText(v);
+    return /^(true|ya|yes|y|1)$/i.test(text);
+  });
+}
+function objectValueMatches(obj,keys,re){
+  const wanted=keys.map(normalizeSignalText);
+  return Object.entries(obj||{}).some(([k,v])=>{
+    const key=normalizeSignalText(k);
+    return wanted.some(w=>key===w||key.includes(w))&&re.test(normalizeSignalText(flattenValues(v).join(' ')));
+  });
+}
+function taxonomyGenus(p){
+  const raw=String(p?.klasifikasi?.Genus||'').trim().toLowerCase();
+  return raw.replace(/^[^a-z]*x?\s*/i,'').split(/[^a-z-]/)[0];
+}
+function classifyPlant(p){
+  const morph=p.morfologi||{},growth=p.pertumbuhan||{},use=p.penggunaan||{};
+  const text=searchableText(p);
+  const structured=[...flattenValues(morph),...flattenValues(growth),...flattenValues(use)].join(' ').toLowerCase();
+  const genus=taxonomyGenus(p);
+  const scores={Buah:0,Herba:0,'Tanaman Hias':0};
+
+  // Buah: prioritize actual food/fruition evidence; taxonomy is only supporting evidence.
+  if(objectFlag(use,['buah','fruit','fruit_crop','tanaman_buah','food_crop']))scores.Buah+=6;
+  if(objectFlag(morph,['buah_dapat_dimakan','edible_fruit','buah_konsumsi']))scores.Buah+=6;
+  if(/\b(buah|fruit)\b.{0,55}\b(dapat dimakan|dikonsumsi|konsumsi|pangan|dimakan|edible)\b/i.test(structured))scores.Buah+=6;
+  if(/\b(tanaman buah|pohon buah|fruit crop|edible fruit)\b/i.test(text))scores.Buah+=5;
+  if(/\bbuah\b/i.test(text)&&/\b(konsumsi|dikonsumsi|dimakan|pangan|masakan|bumbu|sayur|sambal|asinan|acar|jus|makanan)\b/i.test(text))scores.Buah+=5;
+  if(/\b(menghasilkan|mengeluarkan|memproduksi|mengandung)\b.{0,55}\bbuah\b/i.test(text)&&/\b(konsumsi|dikonsumsi|dimakan|pangan)\b/i.test(text))scores.Buah+=3;
+  if(FRUIT_GENERA.has(genus))scores.Buah+=2;
+  if(/\b(buah|fruit)\b.{0,50}\b(bukan|tidak)\b.{0,25}\b(dikonsumsi|konsumsi|dimakan|edible|pangan)\b/i.test(text))scores.Buah-=9;
+  if(/\b(bukan tanaman konsumsi|not for human consumption|inedible|tidak untuk dikonsumsi manusia)\b/i.test(text))scores.Buah-=7;
+
+  // Herba: classify from physical growth form/growth habit, not merely medicinal use.
+  if(objectValueMatches(morph,['bentuk_tumbuh','growth_form','habit','habitus'],/\b(herba|herbaceous|terna|herb)\b/i))scores.Herba+=7;
+  if(objectFlag(morph,['herba','herbaceous','terna']))scores.Herba+=6;
+  if(/\b(tanaman|tumbuhan)\s+(herba|terna)\b|\b(herba|herbaceous)\s+(tegak|perennial|annual|plant)\b/i.test(text))scores.Herba+=6;
+  if(/\bbatang\b.{0,55}\b(lunak|tidak berkayu|herbaceous)\b/i.test(text))scores.Herba+=4;
+  if(/\bherbal\b/i.test(text)&&!/\b(tanaman|tumbuhan)\s+herbal\b/i.test(text))scores.Herba+=0;
+
+  // Tanaman hias: classify from documented human ornamental/landscape use.
+  if(objectFlag(use,['hias','ornamental','tanaman_hias','decorative','dekoratif','landscape','landscaping','indoor']))scores['Tanaman Hias']+=7;
+  if(/\b(tanaman hias|ornamental plant|ornamental|dekoratif|landskap|lanskap|dekorasi interior|indoor plant|untuk dekorasi (?:rumah|taman|interior)|sebagai hiasan taman)\b/i.test(text))scores['Tanaman Hias']+=6;
+  if(/\b(cocok|digunakan|populer)\b.{0,45}\b(taman|pekarangan|interior|dekorasi)\b/i.test(text)&&/\b(tanaman|tumbuhan|pohon|palem|bunga|daun)\b/i.test(text))scores['Tanaman Hias']+=3;
+
+  const categories=[];
+  if(scores.Buah>=5)categories.push('Buah');
+  if(scores.Herba>=5)categories.push('Herba');
+  if(scores['Tanaman Hias']>=5)categories.push('Tanaman Hias');
+  if(!categories.length)categories.push('Tanaman');
+  return categories.sort((a,b)=>CATEGORY_ORDER.indexOf(a)-CATEGORY_ORDER.indexOf(b));
+}
+function itemCategories(p){return Array.isArray(p.kategori)&&p.kategori.length?p.kategori:classifyPlant(p)}
+function tag(p){return '<span class="category-tags">'+itemCategories(p).map(c=>'<span class="category-tag" data-category="'+esc(c)+'">'+esc(c)+'</span>').join('')+'</span>'}
+function getPlant(s){return plants.find(p=>p.slug===s)}
+const preloadedImages=new Set();
+function preloadImage(url,priority='high'){if(!url||preloadedImages.has(url))return;preloadedImages.add(url);const link=document.createElement('link');link.rel='preload';link.as='image';link.href=url;link.fetchPriority=priority;document.head.appendChild(link);const img=new Image();img.fetchPriority=priority;img.src=url}
+function preloadPlantFromLink(link){const href=link?.getAttribute('href')||'';const m=href.match(/^#\/tanaman\/([^/?#]+)/);if(!m)return;const p=getPlant(decodeURIComponent(m[1]));if(!p)return;preloadImage(p.image,'high');if(p.galeri?.[0]?.url&&p.galeri[0].url!==p.image)preloadImage(p.galeri[0].url,'high')}
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2200)}
+let homeSearch='';let homeFilter='all';let searchSuggestionIndex=-1;
+let favorites=new Set();
+try{const saved=JSON.parse(localStorage.getItem('nfp-favorites')||'[]');if(Array.isArray(saved))favorites=new Set(saved.map(String).filter(Boolean))}catch(e){favorites=new Set()}
+function isFavorite(slug){return favorites.has(slug)}
+function saveFavorites(){localStorage.setItem('nfp-favorites',JSON.stringify([...favorites]))}
+function toggleFavorite(slug){if(!slug)return false;const next=!favorites.has(slug);next?favorites.add(slug):favorites.delete(slug);saveFavorites();refreshFavoriteUI();if(homeFilter==='favorites')renderCollectionResults();return next}
+function refreshFavoriteUI(){
+  const count=$('#favoriteCount');if(count)count.textContent=favorites.size;
+  const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1])),btn=$('#detailFavorite');
+  if(btn&&p){const on=isFavorite(p.slug);btn.classList.toggle('is-favorite',on);btn.textContent=on?'♥ Tersimpan':'♡ Simpan Favorit';btn.setAttribute('aria-pressed',on?'true':'false')}
+}
+function openFavorites(){homeSearch='';homeFilter='favorites';route()}
+function itemHasCategory(p,cat){return itemCategories(p).includes(cat)}
+function filteredPlants(){const q=homeSearch.trim().toLowerCase();return plants.filter(p=>{const cats=itemCategories(p);const okCat=homeFilter==='all'||homeFilter==='favorites'||cats.includes(homeFilter);const okQ=!q||searchableText(p).includes(q);const okFav=homeFilter!=='favorites'||isFavorite(p.slug);return okCat&&okQ&&okFav})}
+function suggestionMatches(){
+  const q=homeSearch.trim().toLowerCase();
+  if(!q)return [];
+  const scored=plants.map(p=>{
+    const name=String(p.nama||'').toLowerCase(),latin=String(p.latin||'').toLowerCase();
+    const text=searchableText(p);
+    let score=3;
+    if(name.startsWith(q))score=0;else if(latin.startsWith(q))score=1;else if(name.includes(q)||latin.includes(q))score=2;
+    return {p,score,textMatch:text.includes(q)};
+  }).filter(x=>x.textMatch).sort((a,b)=>a.score-b.score||String(a.p.nama).localeCompare(String(b.p.nama),'id'));
+  return scored.slice(0,7).map(x=>x.p);
+}
+function renderSearchSuggestions(){
+  const box=$('#searchSuggestions'),input=$('#plantSearch');
+  if(!box||!input)return;
+  const q=homeSearch.trim();
+  if(!q){box.innerHTML='';box.classList.remove('show');input.setAttribute('aria-expanded','false');searchSuggestionIndex=-1;return}
+  const data=suggestionMatches();
+  if(!data.length){box.innerHTML='<div class="search-suggestions-empty">Tidak ada saran yang cocok.</div>';box.classList.add('show');input.setAttribute('aria-expanded','true');searchSuggestionIndex=-1;return}
+  searchSuggestionIndex=Math.max(-1,Math.min(searchSuggestionIndex,data.length-1));
+  box.innerHTML=data.map((p,i)=>'<button type="button" class="search-suggestion '+(i===searchSuggestionIndex?'active':'')+'" data-suggest-slug="'+esc(p.slug)+'" role="option" aria-selected="'+(i===searchSuggestionIndex?'true':'false')+'"><span class="suggestion-icon">♧</span><span class="suggestion-copy"><strong>'+esc(p.nama)+'</strong><small>'+esc(p.latin)+'</small></span><span class="suggestion-arrow">↗</span></button>').join('');
+  box.classList.add('show');input.setAttribute('aria-expanded','true');
+}
+function closeSearchSuggestions(){const box=$('#searchSuggestions'),input=$('#plantSearch');if(box){box.classList.remove('show');box.innerHTML=''}if(input)input.setAttribute('aria-expanded','false');searchSuggestionIndex=-1}
+let factCursor=0;
+let factOrder=[];
+let factPoolSignature='';
+function shuffleFactOrder(length){
+  const order=Array.from({length},(_,i)=>i);
+  for(let i=order.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const temp=order[i];
+    order[i]=order[j];
+    order[j]=temp;
+  }
+  return order;
+}
+function factItems(){
+  const items=[];
+  for(const p of plants){
+    const cls=p.klasifikasi||{},m=p.morfologi||{},g=p.pertumbuhan||{};
+    const cats=itemCategories(p);
+    if(p.latin)items.push({p,text:`${p.nama} memiliki nama ilmiah ${p.latin}.`,type:'Nama ilmiah'});
+    if(cls.Famili)items.push({p,text:`${p.nama} termasuk famili ${cls.Famili}.`,type:'Famili'});
+    if(cls.Genus)items.push({p,text:`Genus ${p.nama} adalah ${cls.Genus}.`,type:'Genus'});
+    if(cats.length)items.push({p,text:`Dalam koleksi ini, ${p.nama} tercatat dalam kategori ${cats.join(', ')}.`,type:'Kategori'});
+    const habit=m.bentuk_tumbuh||m.habit||m.habitus;
+    if(habit)items.push({p,text:`Bentuk tumbuh ${p.nama} tercatat sebagai ${habit}.`,type:'Morfologi'});
+    const cycle=g.siklus_hidup;
+    if(cycle)items.push({p,text:`${p.nama} tercatat memiliki siklus hidup ${cycle}.`,type:'Pertumbuhan'});
+    const pattern=g.pola_tumbuh;
+    if(pattern)items.push({p,text:`Pola tumbuh ${p.nama} tercatat ${pattern}.`,type:'Pertumbuhan'});
+    const habitat=g.habitat;
+    if(habitat)items.push({p,text:`Habitat yang dicatat untuk ${p.nama}: ${habitat}.`,type:'Habitat'});
+    if(Array.isArray(p.fakta))for(const fact of p.fakta.filter(Boolean))items.push({p,text:String(fact),type:'Fakta khusus'});
+    const benefit=Array.isArray(p.manfaat)&&p.manfaat[0];
+    if(benefit)items.push({p,text:`Salah satu manfaat yang dicatat: ${benefit}`,type:'Manfaat'});
+    const nutrient=Array.isArray(p.nutrisi)&&p.nutrisi[0];
+    if(nutrient&&!/^bukan tanaman pangan/i.test(String(nutrient)))items.push({p,text:`Salah satu kandungan yang dicatat: ${nutrient}`,type:'Kandungan'});
+  }
+  const unique=new Map();
+  for(const item of items){
+    if(item.p&&item.text&&!unique.has(item.text))unique.set(item.text,item);
+  }
+  return [...unique.values()];
+}
+function currentFact(){
+  const pool=factItems();
+  if(!pool.length){factOrder=[];factPoolSignature='';factCursor=0;return null}
+  const signature=pool.length+':'+pool.map(x=>x.text).join('|');
+  if(signature!==factPoolSignature||factOrder.length!==pool.length){
+    factPoolSignature=signature;
+    factOrder=shuffleFactOrder(pool.length);
+    factCursor=0;
+    const previous=localStorage.getItem('nfp-last-fact-text')||'';
+    if(pool.length>1&&pool[factOrder[0]]?.text===previous){
+      const swapIndex=1+Math.floor(Math.random()*(pool.length-1));
+      [factOrder[0],factOrder[swapIndex]]=[factOrder[swapIndex],factOrder[0]];
+    }
+  }
+  return pool[factOrder[factCursor%factOrder.length]];
+}
+function factCardMarkup(){
+  const f=currentFact();
+  if(!f)return '<section class="fact-section" data-testid="fact-section"><div class="container"><div class="fact-card"><div class="fact-copy"><div class="fact-label">Tahukah Kamu?</div><h2>Belum ada fakta.</h2><p class="fact-text">Data tanaman belum tersedia untuk menampilkan fakta.</p></div></div></div></section>';
+  localStorage.setItem('nfp-last-fact-text',f.text);
+  return '<section class="fact-section" data-testid="fact-section" aria-labelledby="factTitle"><div class="container"><div class="fact-card"><div class="fact-copy"><div class="fact-label">Pengetahuan Singkat · '+esc(f.type)+'</div><h2 id="factTitle">Tahukah Kamu?</h2><p class="fact-text" id="factText">'+esc(f.text)+'</p><div class="fact-source"><strong id="factPlant">'+esc(f.p.nama)+'</strong><span>·</span><em id="factLatin">'+esc(f.p.latin||'')+'</em></div></div><div class="fact-action"><button type="button" class="fact-button" data-action="next-fact" aria-label="Tampilkan fakta lain"><span>Fakta Lain</span><span class="fact-button-icon" aria-hidden="true">↻</span></button></div></div></div></section>';
+}
+function renderFactCard(){
+  const textEl=$('#factText'),plantEl=$('#factPlant'),latinEl=$('#factLatin'),labelEl=document.querySelector('.fact-label');
+  const f=currentFact();
+  if(!f||!textEl)return;
+  textEl.textContent=f.text;
+  if(plantEl)plantEl.textContent=f.p.nama;
+  if(latinEl)latinEl.textContent=f.p.latin||'';
+  if(labelEl)labelEl.textContent='Pengetahuan Singkat · '+f.type;
+  const card=document.querySelector('.fact-card');
+  if(card){card.classList.remove('fact-changing');void card.offsetWidth;card.classList.add('fact-changing');clearTimeout(card.factChangeTimer);card.factChangeTimer=setTimeout(()=>card.classList.remove('fact-changing'),480)}
+  if(textEl.animate)textEl.animate([{opacity:.2,transform:'translateY(8px)'},{opacity:1,transform:'none'}],{duration:360,easing:'cubic-bezier(.2,.7,.2,1)'});
+}
+function recentPlants(){return plants.slice(-3).reverse()}
+function relatedPlants(p){
+  const base=p&&p.klasifikasi||{};
+  const keywords=searchableText(p).split(/[^a-z0-9]+/i).filter(w=>w.length>=5);
+  const related=plants.filter(x=>x.slug!==p.slug).map(x=>{
+    const cls=x.klasifikasi||{};let score=0;
+    if(base.Genus&&cls.Genus&&String(base.Genus).toLowerCase()===String(cls.Genus).toLowerCase())score+=8;
+    if(base.Famili&&cls.Famili&&String(base.Famili).toLowerCase()===String(cls.Famili).toLowerCase())score+=5;
+    if(base.Ordo&&cls.Ordo&&String(base.Ordo).toLowerCase()===String(cls.Ordo).toLowerCase())score+=3;
+    if(base.Kelas&&cls.Kelas&&String(base.Kelas).toLowerCase()===String(cls.Kelas).toLowerCase())score+=2;
+    if(base.Divisi&&cls.Divisi&&String(base.Divisi).toLowerCase()===String(cls.Divisi).toLowerCase())score+=1;
+    const sharedCategories=itemCategories(x).filter(cat=>itemCategories(p).includes(cat)).length;
+    score+=sharedCategories*2;
+    const xt=searchableText(x);let overlap=0;
+    for(const word of keywords){if(xt.includes(word)){overlap++;if(overlap>=3)break}}
+    score+=Math.min(overlap,3);
+    return {p:x,score};
+  }).sort((a,b)=>b.score-a.score||String(a.p.nama).localeCompare(String(b.p.nama),'id'));
+  return related.slice(0,3).map(x=>x.p);
+}
+function filteredPlants(){const q=homeSearch.trim().toLowerCase();return plants.filter(p=>{const cats=itemCategories(p);const okCat=homeFilter==='all'||homeFilter==='favorites'||cats.includes(homeFilter);const okQ=!q||searchableText(p).includes(q);const okFav=homeFilter!=='favorites'||isFavorite(p.slug);return okCat&&okQ&&okFav})}
+function suggestionMatches(){
+  const q=homeSearch.trim().toLowerCase();
+  if(!q)return [];
+  const scored=plants.map(p=>{
+    const name=String(p.nama||'').toLowerCase(),latin=String(p.latin||'').toLowerCase();
+    const text=searchableText(p);
+    let score=3;
+    if(name.startsWith(q))score=0;else if(latin.startsWith(q))score=1;else if(name.includes(q)||latin.includes(q))score=2;
+    return {p,score,textMatch:text.includes(q)};
+  }).filter(x=>x.textMatch).sort((a,b)=>a.score-b.score||String(a.p.nama).localeCompare(String(b.p.nama),'id'));
+  return scored.slice(0,7).map(x=>x.p);
+}
+function renderSearchSuggestions(){
+  const box=$('#searchSuggestions'),input=$('#plantSearch');
+  if(!box||!input)return;
+  const q=homeSearch.trim();
+  if(!q){box.innerHTML='';box.classList.remove('show');input.setAttribute('aria-expanded','false');searchSuggestionIndex=-1;return}
+  const data=suggestionMatches();
+  if(!data.length){box.innerHTML='<div class="search-suggestions-empty">Tidak ada saran yang cocok.</div>';box.classList.add('show');input.setAttribute('aria-expanded','true');searchSuggestionIndex=-1;return}
+  searchSuggestionIndex=Math.max(-1,Math.min(searchSuggestionIndex,data.length-1));
+  box.innerHTML=data.map((p,i)=>'<button type="button" class="search-suggestion '+(i===searchSuggestionIndex?'active':'')+'" data-suggest-slug="'+esc(p.slug)+'" role="option" aria-selected="'+(i===searchSuggestionIndex?'true':'false')+'"><span class="suggestion-icon">♧</span><span class="suggestion-copy"><strong>'+esc(p.nama)+'</strong><small>'+esc(p.latin)+'</small></span><span class="suggestion-arrow">↗</span></button>').join('');
+  box.classList.add('show');input.setAttribute('aria-expanded','true');
+}
+function closeSearchSuggestions(){const box=$('#searchSuggestions'),input=$('#plantSearch');if(box){box.classList.remove('show');box.innerHTML=''}if(input)input.setAttribute('aria-expanded','false');searchSuggestionIndex=-1}
+
+function home(){
+  document.title='Nano Fruits Pedia';$('#navLobby').classList.add('active');
+  const data=filteredPlants();
+  const recent=recentPlants();
+  return '<main data-testid="home-page"><section class="hero"><div class="container"><div class="hero-copy"><span class="pill">✦ Proyek C# Group · Kelas IX.3 · SMP Negeri 3 Makassar</span><h1>Jelajahi kekayaan <span>buah & tanaman</span> Nusantara</h1><p><strong>Nano Fruits Pedia</strong> hadir untuk menjadi ensiklopedia digital yang membantu kita mengenal, memahami, dan menghargai tanaman serta buah di sekitar kita. Kami ingin menyajikan informasi yang mudah dipahami tentang setiap tanaman—mulai dari identitas dan klasifikasi, manfaat, hingga cara menanam dan merawatnya—sehingga pengetahuan tentang kekayaan hayati dapat lebih dekat dengan kehidupan sehari-hari.</p><a class="cta" href="#koleksi" data-testid="hero-cta">❧ Mulai Menjelajah</a></div><div class="stats"><div><div class="stat-num">'+plants.length+'</div><div class="stat-label">Tanaman & Buah</div></div><div><div class="stat-num">100%</div><div class="stat-label">Bahasa Indonesia</div></div><div><div class="stat-num">4</div><div class="stat-label">Kategori Informasi</div></div></div></div></section>'+factCardMarkup()+'<section class="collection" id="koleksi" data-testid="koleksi-section"><div class="container"><div class="section-head"><div><h2>Lobby Koleksi</h2><p>Jelajahi koleksi tanaman dan buah dalam proyek C# Group <strong>Kelas IX.3</strong> dari SMP Negeri 3 Makassar.</p></div><span class="count" id="collectionCount">'+data.length+' dari '+plants.length+' entri</span></div><div class="collection-tools"><div class="search-wrap"><input id="plantSearch" type="search" value="'+esc(homeSearch)+'" placeholder="Cari tanaman atau buah..." autocomplete="off" aria-label="Cari tanaman atau buah" role="combobox" aria-controls="searchSuggestions" aria-expanded="false" aria-autocomplete="list"><span class="search-icon">⌕</span><div class="search-suggestions" id="searchSuggestions" role="listbox" aria-label="Saran pencarian"></div></div><div class="filter-chips" role="group" aria-label="Filter koleksi"><button class="filter-chip '+(homeFilter==='all'?'active':'')+'" type="button" data-filter="all">Semua</button><button class="filter-chip '+(homeFilter==='Buah'?'active':'')+'" type="button" data-filter="Buah">Buah</button><button class="filter-chip '+(homeFilter==='Tanaman Hias'?'active':'')+'" type="button" data-filter="Tanaman Hias">Tanaman Hias</button><button class="filter-chip '+(homeFilter==='Tanaman'?'active':'')+'" type="button" data-filter="Tanaman">Tanaman</button><button class="filter-chip '+(homeFilter==='Herba'?'active':'')+'" type="button" data-filter="Herba">Herba</button><button class="filter-chip '+(homeFilter==='favorites'?'active':'')+'" type="button" data-filter="favorites">♥ Favorit</button></div><div class="results-meta"><span>Menampilkan <strong>'+data.length+'</strong> hasil</span><span>'+('Semua koleksi'===(''+(homeFilter==='all'?'Semua koleksi':homeFilter))?'Semua koleksi':('Filter: '+homeFilter))+'</span></div></div><div class="grid" id="collectionGrid">'+(data.length?data.map((p,i)=>'<a href="#/tanaman/'+esc(p.slug)+'" data-testid="plant-card-'+esc(p.slug)+'" class="card '+(wideCards.has(p.slug)?'wide':'')+'" style="animation-delay:'+((i%3)*.1)+'s"><div class="card-img"><img src="'+esc(p.image)+'" alt="'+esc(p.nama)+'" loading="'+(i<6?'eager':'lazy')+'" fetchpriority="'+(i<3?'high':'auto')+'"></div><div class="card-body"><div>'+tag(p)+'<h3>'+esc(p.nama)+'</h3><div class="latin">'+esc(p.latin)+'</div><div class="tagline">'+esc(p.tagline)+'</div></div><span class="card-favorite '+(isFavorite(p.slug)?"is-favorite":"")+'" aria-hidden="true">♥</span><span class="go" style="background:'+p.aksen+'">↗</span></div></a>').join(''):'<div class="empty-results"><h3>Tidak ada hasil</h3><p>Coba kata kunci lain atau ubah filter koleksi.</p></div>')+'</div></div></section><section class="recent-section"><div class="container"><div class="recent-head"><div><div class="recent-label">Perkembangan Koleksi</div><h2>Baru di Koleksi</h2><p>Tanaman yang berada paling akhir di data koleksi ditampilkan di sini sebagai entri terbaru.</p></div></div><div class="recent-grid">'+recent.map(p=>'<a class="recent-card" href="#/tanaman/'+esc(p.slug)+'" data-testid="recent-'+esc(p.slug)+'" aria-label="Buka '+esc(p.nama)+'"><img src="'+esc(p.image)+'" alt="'+esc(p.nama)+'" loading="lazy"><div class="recent-card-copy"><h3>'+esc(p.nama)+'</h3><div class="latin">'+esc(p.latin)+'</div><span class="recent-tag category-tags">'+itemCategories(p).map(c=>'<span class="category-tag" data-category="'+esc(c)+'">'+esc(c)+'</span>').join('')+'</span></div></a>').join('')+'</div></div></section></main>'
+}
+function secTitle(icon,title){return `<div class="section-title"><span class="section-icon">${icon}</span><h2>${title}</h2></div>`}
+/* BOTANICAL GLOBE — data-driven loader and lifecycle */ 
+let botanicalGlobeInstance=null;
+let botanicalGlobeLoadToken=0;
+let botanicalGlobeAssetsPromise=null;
+let botanicalGlobeObserver=null;
+async function loadExternalModule(url){return import(url)}
+async function loadBotanicalGlobeAssets(){
+  if(botanicalGlobeAssetsPromise)return botanicalGlobeAssetsPromise;
+  botanicalGlobeAssetsPromise=Promise.all([
+    loadExternalModule('https://esm.sh/globe.gl'),
+    loadExternalModule('https://esm.sh/topojson-client@3'),
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',{cache:'force-cache'}).then(res=>{if(!res.ok)throw new Error('world data');return res.json()})
+  ]).then(async ([globeModule,topoModule,world])=>({
+    Globe:globeModule.default,
+    topo:topoModule,
+    countries:topoModule.feature(world,world.objects.countries).features
+  }));
+  return botanicalGlobeAssetsPromise;
+}
 function botanicalGlobeSection(p){
   if(!p)return '';
   const raw=p.botanicalGlobe&&typeof p.botanicalGlobe==='object'?p.botanicalGlobe:{};
@@ -168,6 +458,7 @@ function hexToRgba(hex,alpha){
   const n=parseInt(s,16);
   return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+alpha+')';
 }
+/* BOTANICAL GLOBE — data comes from each plant record. */
 async function initBotanicalGlobe(p){
   if(!p)return;
   const host=document.getElementById('botanicalGlobe'),loading=document.getElementById('botanicalGlobeLoading');
