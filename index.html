@@ -304,7 +304,11 @@ function factItems(){
     const nutrient=Array.isArray(p.nutrisi)&&p.nutrisi[0];
     if(nutrient)items.push({p,text:`Salah satu kandungan yang dicatat: ${nutrient}.`,type:'Kandungan'});
   }
-  return items.filter(x=>x.p&&x.text);
+  const unique=new Map();
+  for(const item of items){
+    if(item.p&&item.text&&!unique.has(item.text))unique.set(item.text,item);
+  }
+  return [...unique.values()];
 }
 function currentFact(){
   const pool=factItems();
