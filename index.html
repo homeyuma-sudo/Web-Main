@@ -198,7 +198,8 @@ function classifyPlant(p){
   if(objectFlag(morph,['buah_dapat_dimakan','edible_fruit','buah_konsumsi']))scores.Buah+=6;
   if(/\b(buah|fruit)\b.{0,55}\b(dapat dimakan|dikonsumsi|konsumsi|pangan|dimakan|edible)\b/i.test(structured))scores.Buah+=6;
   if(/\b(tanaman buah|pohon buah|fruit crop|edible fruit)\b/i.test(text))scores.Buah+=5;
-  if(/\b(menghasilkan|mengeluarkan|memproduksi)\b.{0,40}\bbuah\b/i.test(text)&&/\b(konsumsi|dikonsumsi|dimakan|pangan)\b/i.test(text))scores.Buah+=3;
+  if(/\bbuah\b/i.test(text)&&/\b(konsumsi|dikonsumsi|dimakan|pangan|masakan|bumbu|sayur|sambal|asinan|acar|jus|makanan)\b/i.test(text))scores.Buah+=5;
+  if(/\b(menghasilkan|mengeluarkan|memproduksi|mengandung)\b.{0,55}\bbuah\b/i.test(text)&&/\b(konsumsi|dikonsumsi|dimakan|pangan)\b/i.test(text))scores.Buah+=3;
   if(FRUIT_GENERA.has(genus))scores.Buah+=2;
   if(/\b(buah|fruit)\b.{0,50}\b(bukan|tidak)\b.{0,25}\b(dikonsumsi|konsumsi|dimakan|edible|pangan)\b/i.test(text))scores.Buah-=9;
   if(/\b(bukan tanaman konsumsi|not for human consumption|inedible|tidak untuk dikonsumsi manusia)\b/i.test(text))scores.Buah-=7;
