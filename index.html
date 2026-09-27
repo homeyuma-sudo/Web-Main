@@ -269,7 +269,18 @@ function renderSearchSuggestions(){
   box.classList.add('show');input.setAttribute('aria-expanded','true');
 }
 function closeSearchSuggestions(){const box=$('#searchSuggestions'),input=$('#plantSearch');if(box){box.classList.remove('show');box.innerHTML=''}if(input)input.setAttribute('aria-expanded','false');searchSuggestionIndex=-1}
-let factCursor=Math.floor(Date.now()/86400000)%1000003;
+let factCursor=0;
+let factOrder=[];
+let factPoolSignature='';
+function shuffleFactOrder(length){
+  const order=Array.from({length},(_,i)=>i);
+  for(let i=order.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    order[i]=order[j];
+    order[j]=i;
+  }
+  return order;
+}
 function factItems(){
   const items=[];
   for(const p of plants){
@@ -294,10 +305,26 @@ function factItems(){
   }
   return items.filter(x=>x.p&&x.text);
 }
-function currentFact(){const pool=factItems();return pool.length?pool[factCursor%pool.length]:null}
+function currentFact(){
+  const pool=factItems();
+  if(!pool.length){factOrder=[];factPoolSignature='';factCursor=0;return null}
+  const signature=pool.length+':'+pool.map(x=>x.text).join('|');
+  if(signature!==factPoolSignature||factOrder.length!==pool.length){
+    factPoolSignature=signature;
+    factOrder=shuffleFactOrder(pool.length);
+    factCursor=0;
+    const previous=localStorage.getItem('nfp-last-fact-text')||'';
+    if(pool.length>1&&pool[factOrder[0]]?.text===previous){
+      const swapIndex=1+Math.floor(Math.random()*(pool.length-1));
+      [factOrder[0],factOrder[swapIndex]]=[factOrder[swapIndex],factOrder[0]];
+    }
+  }
+  return pool[factOrder[factCursor%factOrder.length]];
+}
 function factCardMarkup(){
   const f=currentFact();
   if(!f)return '<section class="fact-section" data-testid="fact-section"><div class="container"><div class="fact-card"><div class="fact-copy"><div class="fact-label">Tahukah Kamu?</div><h2>Belum ada fakta.</h2><p class="fact-text">Data tanaman belum tersedia untuk menampilkan fakta.</p></div></div></div></section>';
+  localStorage.setItem('nfp-last-fact-text',f.text);
   return '<section class="fact-section" data-testid="fact-section" aria-labelledby="factTitle"><div class="container"><div class="fact-card"><div class="fact-copy"><div class="fact-label">Pengetahuan Singkat · '+esc(f.type)+'</div><h2 id="factTitle">Tahukah Kamu?</h2><p class="fact-text" id="factText">'+esc(f.text)+'</p><div class="fact-source"><strong id="factPlant">'+esc(f.p.nama)+'</strong><span>·</span><em id="factLatin">'+esc(f.p.latin||'')+'</em></div></div><div class="fact-action"><button type="button" class="fact-button" data-action="next-fact" aria-label="Tampilkan fakta lain"><span>Fakta Lain</span><span class="fact-button-icon" aria-hidden="true">↻</span></button></div></div></div></section>';
 }
 function renderFactCard(){
@@ -371,7 +398,7 @@ function route(){const hash=location.hash||'#/'; if(hash==='#koleksi'){if(!$('#k
 function syncThemeUI(){const d=document.documentElement.classList.contains('dark');const btn=$('#themeToggle'),meta=$('#themeColor');if(btn){btn.textContent=d?'☀':'☾';btn.setAttribute('aria-label',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('title',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('aria-pressed',d?'true':'false')}if(meta)meta.setAttribute('content',d?'#0B100C':'#2C5E3B')}
 $('#themeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark');localStorage.setItem('nfp-theme',d?'dark':'light');syncThemeUI()});
 syncThemeUI()
-$('#app').addEventListener('click',async e=>{const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='back')location.hash='#/';if(a.dataset.action==='next-fact'){factCursor++;renderFactCard();return}if(a.dataset.action==='favorite'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(p)toast(toggleFavorite(p.slug)?'Ditambahkan ke favorit ♥':'Dihapus dari favorit')}if(a.dataset.action==='print')print();if(a.dataset.action==='share'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(!p)return;const sd={title:`${p.nama} — Nano Fruits Pedia`,text:`Baca info lengkap ${p.nama} (${p.latin}) di Nano Fruits Pedia`,url:location.href};try{if(navigator.share)await navigator.share(sd);else{await navigator.clipboard.writeText(location.href);toast('Tautan disalin ke clipboard!')}}catch{}}}const g=e.target.closest('[data-gallery]');if(g){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));const i=Number(g.dataset.gallery),item=p?.galeri?.[i];if(!item)return;$('#galleryMain').src=item.url;$('#galleryMain').alt=item.caption;$('#galleryCaption').textContent=item.caption;document.querySelectorAll('.thumb').forEach((x,j)=>{x.classList.toggle('active',j===i);x.style.borderColor=j===i?p.aksen:'transparent'})}});
+$('#app').addEventListener('click',async e=>{const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='back')location.hash='#/';if(a.dataset.action==='next-fact'){const pool=factItems();if(pool.length){factCursor=(factCursor+1)%factOrder.length;const next=factOrder[factCursor];localStorage.setItem('nfp-last-fact-text',pool[next]?.text||'')}renderFactCard();return}if(a.dataset.action==='favorite'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(p)toast(toggleFavorite(p.slug)?'Ditambahkan ke favorit ♥':'Dihapus dari favorit')}if(a.dataset.action==='print')print();if(a.dataset.action==='share'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(!p)return;const sd={title:`${p.nama} — Nano Fruits Pedia`,text:`Baca info lengkap ${p.nama} (${p.latin}) di Nano Fruits Pedia`,url:location.href};try{if(navigator.share)await navigator.share(sd);else{await navigator.clipboard.writeText(location.href);toast('Tautan disalin ke clipboard!')}}catch{}}}const g=e.target.closest('[data-gallery]');if(g){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));const i=Number(g.dataset.gallery),item=p?.galeri?.[i];if(!item)return;$('#galleryMain').src=item.url;$('#galleryMain').alt=item.caption;$('#galleryCaption').textContent=item.caption;document.querySelectorAll('.thumb').forEach((x,j)=>{x.classList.toggle('active',j===i);x.style.borderColor=j===i?p.aksen:'transparent'})}});
 function renderCollectionResults(){
   const data=filteredPlants();
   const grid=$('#collectionGrid');if(!grid)return;
