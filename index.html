@@ -287,7 +287,7 @@ function relatedPlants(p){
   }).sort((a,b)=>b.score-a.score||String(a.p.nama).localeCompare(String(b.p.nama),'id'));
   return related.slice(0,3).map(x=>x.p);
 }
-function filteredPlants(){const q=homeSearch.trim().toLowerCase();return plants.filter(p=>{const cat=itemCategory(p);const okCat=homeFilter==='all'||homeFilter==='favorites'||cat===homeFilter;const okQ=!q||searchableText(p).includes(q);const okFav=homeFilter!=='favorites'||isFavorite(p.slug);return okCat&&okQ&&okFav})}
+function filteredPlants(){const q=homeSearch.trim().toLowerCase();return plants.filter(p=>{const cats=itemCategories(p);const okCat=homeFilter==='all'||homeFilter==='favorites'||cats.includes(homeFilter);const okQ=!q||searchableText(p).includes(q);const okFav=homeFilter!=='favorites'||isFavorite(p.slug);return okCat&&okQ&&okFav})}
 function suggestionMatches(){
   const q=homeSearch.trim().toLowerCase();
   if(!q)return [];
