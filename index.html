@@ -206,14 +206,14 @@ function classifyPlant(p){
   // Herba: classify from physical growth form/growth habit, not merely medicinal use.
   if(objectValueMatches(morph,['bentuk_tumbuh','growth_form','habit','habitus'],/\b(herba|herbaceous|terna|herb)\b/i))scores.Herba+=7;
   if(objectFlag(morph,['herba','herbaceous','terna']))scores.Herba+=6;
-  if(/\b(tanaman|tumbuhan)\s+(herba|terna)\b|\b(herba|herbaceous)\s+(tegak|perennial|annual|plant)\b/i.test(structured))scores.Herba+=6;
+  if(/\b(tanaman|tumbuhan)\s+(herba|terna)\b|\b(herba|herbaceous)\s+(tegak|perennial|annual|plant)\b/i.test(text))scores.Herba+=6;
   if(/\bbatang\b.{0,55}\b(lunak|tidak berkayu|herbaceous)\b/i.test(text))scores.Herba+=4;
   if(/\bherbal\b/i.test(text)&&!/\b(tanaman|tumbuhan)\s+herbal\b/i.test(text))scores.Herba+=0;
 
   // Tanaman hias: classify from documented human ornamental/landscape use.
   if(objectFlag(use,['hias','ornamental','tanaman_hias','decorative','dekoratif','landscape','landscaping','indoor']))scores['Tanaman Hias']+=7;
-  if(/\b(tanaman hias|ornamental plant|ornamental|dekoratif|untuk dekorasi|hiasan|landskap|lanskap|dekorasi interior|indoor plant)\b/i.test(text))scores['Tanaman Hias']+=6;
-  if(/\b(cocok|digunakan|populer)\b.{0,45}\b(taman|pekarangan|interior|dekorasi|landskap|lanskap)\b/i.test(text))scores['Tanaman Hias']+=3;
+  if(/\b(tanaman hias|ornamental plant|ornamental|dekoratif|landskap|lanskap|dekorasi interior|indoor plant|untuk dekorasi (?:rumah|taman|interior)|sebagai hiasan taman)\b/i.test(text))scores['Tanaman Hias']+=6;
+  if(/\b(cocok|digunakan|populer)\b.{0,45}\b(taman|pekarangan|interior|dekorasi)\b/i.test(text)&&/\b(tanaman|tumbuhan|pohon|palem|bunga|daun)\b/i.test(text))scores['Tanaman Hias']+=3;
 
   const categories=[];
   if(scores.Buah>=5)categories.push('Buah');
