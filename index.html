@@ -203,7 +203,7 @@ function classifyPlant(p){
   const scores={Buah:0,Herba:0,'Tanaman Hias':0};
 
   // Buah: prioritize actual food/fruition evidence; taxonomy is only supporting evidence.
-  if(objectFlag(use,['buah','fruit','fruit_crop','tanaman_buah','pangan','food','food_crop']))scores.Buah+=6;
+  if(objectFlag(use,['buah','fruit','fruit_crop','tanaman_buah','food_crop']))scores.Buah+=6;
   if(objectFlag(morph,['buah_dapat_dimakan','edible_fruit','buah_konsumsi']))scores.Buah+=6;
   if(/\b(buah|fruit)\b.{0,55}\b(dapat dimakan|dikonsumsi|konsumsi|pangan|dimakan|edible)\b/i.test(structured))scores.Buah+=6;
   if(/\b(tanaman buah|pohon buah|fruit crop|edible fruit)\b/i.test(text))scores.Buah+=5;
