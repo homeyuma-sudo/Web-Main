@@ -122,7 +122,8 @@ function normalizePlant(p){
     perawatan:Array.isArray(x.perawatan)?x.perawatan.filter(Boolean).map(c=>({icon:String(c.icon||'Sprout'),judul:String(c.judul||''),isi:String(c.isi||'')})):[],
     morfologi:x.morfologi&&typeof x.morfologi==='object'?x.morfologi:{},
     pertumbuhan:x.pertumbuhan&&typeof x.pertumbuhan==='object'?x.pertumbuhan:{},
-    penggunaan:x.penggunaan&&typeof x.penggunaan==='object'?x.penggunaan:{}
+    penggunaan:x.penggunaan&&typeof x.penggunaan==='object'?x.penggunaan:{},
+    kategori:Array.isArray(x.kategori)?x.kategori.map(String):[]
   };
 }
 function applyRemotePlants(payload){
@@ -223,7 +224,7 @@ function classifyPlant(p){
   if(!categories.length)categories.push('Tanaman');
   return categories.sort((a,b)=>CATEGORY_ORDER.indexOf(a)-CATEGORY_ORDER.indexOf(b));
 }
-function itemCategories(p){return classifyPlant(p)}
+function itemCategories(p){return Array.isArray(p.kategori)&&p.kategori.length?p.kategori:classifyPlant(p)}
 function tag(p){return '<span class="category-tags">'+itemCategories(p).map(c=>'<span class="category-tag" data-category="'+esc(c)+'">'+esc(c)+'</span>').join('')+'</span>'}
 function getPlant(s){return plants.find(p=>p.slug===s)}
 const preloadedImages=new Set();
