@@ -150,6 +150,24 @@ function normalizePlant(p){
   };
 }
 /* BOTANICAL GLOBE — data comes from each plant record. */
+function botanicalGlobeSection(p){
+  if(!p)return '';
+  const raw=p.botanicalGlobe&&typeof p.botanicalGlobe==='object'?p.botanicalGlobe:{};
+  const range={
+    countries:Array.isArray(raw.countries)?raw.countries:[],
+    label:raw.label||'Data persebaran belum dipetakan',
+    focus:Array.isArray(raw.focus)&&raw.focus.length===2?raw.focus:[15,20]
+  };
+  const count=range.countries.length;
+  const countText=count?count+' negara disorot':'Tidak ada satu wilayah asli tingkat negara untuk ditampilkan';
+  return '<section class="origin-globe-section" data-testid="section-persebaran"><div class="origin-globe-card"><div class="origin-globe-head"><div><div class="origin-globe-kicker">Asal & Persebaran</div><h2>Di mana tanaman ini berasal?</h2><p>Globe 3D yang menyorot <strong>'+esc(p.nama)+'</strong> berdasarkan wilayah asal botani yang tersedia.</p></div><span class="origin-globe-demo">Persebaran</span></div><div class="origin-globe-wrap"><div class="origin-globe-canvas" id="botanicalGlobe"></div><div class="origin-globe-loading" id="botanicalGlobeLoading">Memuat globe…</div></div><div class="origin-globe-legend"><span class="origin-globe-key"><span class="origin-globe-dot"></span>'+esc(range.label)+'</span><span>'+countText+' · geser untuk memutar · scroll untuk memperbesar</span></div><div class="origin-globe-countrylist" id="botanicalGlobeCountryList"><strong>Wilayah yang ditampilkan:</strong> <span>Memuat…</span></div><p class="origin-globe-note">Peta menggunakan batas negara dari World Atlas / Natural Earth. Sorotan merupakan visualisasi tingkat negara dan tidak dimaksudkan sebagai peta distribusi populasi spesies yang presisi.</p></div></section>';
+}
+function hexToRgba(hex,alpha){
+  const s=String(hex||'').replace('#','').trim();
+  if(!/^[0-9a-f]{6}$/i.test(s))return 'rgba(111,143,74,'+alpha+')';
+  const n=parseInt(s,16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+alpha+')';
+}
 async function initBotanicalGlobe(p){
   if(!p)return;
   const host=document.getElementById('botanicalGlobe'),loading=document.getElementById('botanicalGlobeLoading');
