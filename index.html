@@ -98,7 +98,7 @@ html:not(.dark) ::selection{background:#E5EED7;color:#1E2923}
 html.dark input,html.dark button{color-scheme:dark}
 
 /* Botanical globe: native-range visualization */
-.origin-globe-section{margin:34px 0 0}.origin-globe-card{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:28px;background:linear-gradient(135deg,var(--card),var(--soft2));box-shadow:var(--shadow);padding:28px}.origin-globe-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:20px}.origin-globe-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--primary);margin-bottom:6px}.origin-globe-head h2{margin:0;font:600 clamp(34px,4vw,46px)/1 "Cormorant Garamond";letter-spacing:-.025em}.origin-globe-head p{margin:8px 0 0;max-width:650px;color:var(--muted);font-size:14px;line-height:1.65}.origin-globe-demo{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 11px;border:1px solid var(--border);border-radius:999px;color:var(--muted);white-space:nowrap}.origin-globe-wrap{position:relative;min-height:440px;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(77,117,82,.10),transparent 52%),var(--bg);border:1px solid var(--border)}.origin-globe-canvas{width:100%;height:440px}.origin-globe-loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;pointer-events:none}.origin-globe-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:16px;font-size:12px;color:var(--muted)}.origin-globe-key{display:inline-flex;align-items:center;gap:7px}.origin-globe-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 14px color-mix(in srgb,var(--primary) 55%,transparent)}.origin-globe-countrylist{margin-top:14px;font-size:12px;line-height:1.7;color:var(--muted)}.origin-globe-countrylist strong{color:var(--fg);font-weight:700}.origin-globe-note{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.6}.origin-globe-error{display:grid;place-items:center;min-height:440px;padding:28px;text-align:center;color:var(--muted)}.dark .origin-globe-wrap{background:radial-gradient(circle at 50% 42%,rgba(130,188,118,.08),transparent 52%),#0B100C}@media(max-width:760px){.origin-globe-card{padding:20px;border-radius:22px}.origin-globe-head{align-items:flex-start;flex-direction:column;gap:12px}.origin-globe-wrap,.origin-globe-canvas{min-height:340px;height:340px}}
+.origin-globe-section{margin:34px 0 0;contain:layout}.origin-globe-card{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:28px;background:linear-gradient(135deg,var(--card),var(--soft2));box-shadow:var(--shadow);padding:28px}.origin-globe-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:20px}.origin-globe-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--primary);margin-bottom:6px}.origin-globe-head h2{margin:0;font:600 clamp(34px,4vw,46px)/1 "Cormorant Garamond";letter-spacing:-.025em}.origin-globe-head p{margin:8px 0 0;max-width:650px;color:var(--muted);font-size:14px;line-height:1.65}.origin-globe-demo{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 11px;border:1px solid var(--border);border-radius:999px;color:var(--muted);white-space:nowrap}.origin-globe-wrap{position:relative;min-height:440px;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(77,117,82,.10),transparent 52%),var(--bg);border:1px solid var(--border);isolation:isolate}.origin-globe-canvas{width:100%;height:440px;touch-action:none;user-select:none;-webkit-user-select:none}.origin-globe-canvas canvas{display:block;width:100%;height:100%}.origin-globe-loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;pointer-events:none}.origin-globe-controls{position:absolute;z-index:4;top:14px;right:14px;display:flex;flex-direction:column;gap:7px}.origin-globe-control{display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(20,27,21,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:21px;line-height:1;box-shadow:0 10px 26px -18px rgba(0,0,0,.75);-webkit-tap-highlight-color:transparent}.origin-globe-control:hover{background:rgba(31,43,33,.9);border-color:rgba(255,255,255,.28)}.origin-globe-control:active{transform:scale(.94)}.origin-globe-control.reset{font-size:17px}.origin-globe-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:16px;font-size:12px;color:var(--muted)}.origin-globe-key{display:inline-flex;align-items:center;gap:7px}.origin-globe-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 14px color-mix(in srgb,var(--primary) 55%,transparent)}.origin-globe-countrylist{margin-top:14px;font-size:12px;line-height:1.7;color:var(--muted)}.origin-globe-countrylist strong{color:var(--fg);font-weight:700}.origin-globe-note{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.6}.origin-globe-error{display:grid;place-items:center;min-height:440px;padding:28px;text-align:center;color:var(--muted)}.dark .origin-globe-wrap{background:radial-gradient(circle at 50% 42%,rgba(130,188,118,.08),transparent 52%),#0B100C}@media(max-width:760px){.origin-globe-card{padding:20px;border-radius:22px}.origin-globe-head{align-items:flex-start;flex-direction:column;gap:12px}.origin-globe-wrap,.origin-globe-canvas{min-height:340px;height:340px}.origin-globe-controls{top:10px;right:10px;gap:8px}.origin-globe-control{width:44px;height:44px;border-radius:13px}.origin-globe-legend{gap:8px 14px}.origin-globe-legend>span:last-child{width:100%}}
 </style>
 <script>(function(){const s=localStorage.getItem('nfp-theme');const dark=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(dark)document.documentElement.classList.add('dark')})()</script>
 </head>
@@ -428,6 +428,7 @@ let botanicalGlobeAssetsPromise=null;
 let botanicalGlobeObserver=null;
 let botanicalGlobeVisibilityObserver=null;
 let botanicalGlobeResizeObserver=null;
+let botanicalGlobeHomePOV={lat:15,lng:20,altitude:2.05};
 async function loadExternalModule(url){return import(url)}
 async function loadBotanicalGlobeAssets(){
   if(botanicalGlobeAssetsPromise)return botanicalGlobeAssetsPromise;
@@ -435,12 +436,30 @@ async function loadBotanicalGlobeAssets(){
     loadExternalModule('https://esm.sh/globe.gl'),
     loadExternalModule('https://esm.sh/topojson-client@3'),
     fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',{cache:'force-cache'}).then(res=>{if(!res.ok)throw new Error('world data');return res.json()})
-  ]).then(async ([globeModule,topoModule,world])=>({
-    Globe:globeModule.default,
-    topo:topoModule,
-    countries:topoModule.feature(world,world.objects.countries).features
-  }));
+  ]).then(([globeModule,topoModule,world])=>{
+    const topo=topoModule;
+    const countries=topo.feature(world,world.objects.countries).features;
+    const countryNamesById=new Map();
+    for(const d of countries){
+      const name=d.properties?.name;
+      if(name)countryNamesById.set(String(d.id),name);
+    }
+    return {Globe:globeModule.default,topo,countries,countryNamesById};
+  });
   return botanicalGlobeAssetsPromise;
+}
+function botanicalGlobeSetZoom(multiplier){
+  if(!botanicalGlobeInstance)return;
+  try{
+    const pov=botanicalGlobeInstance.pointOfView();
+    const current=Number(pov?.altitude)||2.05;
+    const altitude=Math.min(4.8,Math.max(.82,current*multiplier));
+    botanicalGlobeInstance.pointOfView({lat:pov?.lat??botanicalGlobeHomePOV.lat,lng:pov?.lng??botanicalGlobeHomePOV.lng,altitude},260);
+  }catch(err){console.warn('Nano Fruits Pedia globe zoom:',err)}
+}
+function botanicalGlobeResetView(){
+  if(!botanicalGlobeInstance)return;
+  botanicalGlobeInstance.pointOfView({...botanicalGlobeHomePOV},420);
 }
 function botanicalGlobeSection(p){
   if(!p)return '';
@@ -452,7 +471,7 @@ function botanicalGlobeSection(p){
   };
   const count=range.countries.length;
   const countText=count?count+' negara disorot':'Tidak ada satu wilayah asli tingkat negara untuk ditampilkan';
-  return '<section class="origin-globe-section" data-testid="section-persebaran"><div class="origin-globe-card"><div class="origin-globe-head"><div><div class="origin-globe-kicker">Asal & Persebaran</div><h2>Di mana tanaman ini berasal?</h2><p>Globe 3D yang menyorot <strong>'+esc(p.nama)+'</strong> berdasarkan wilayah asal botani yang tersedia.</p></div><span class="origin-globe-demo">Persebaran</span></div><div class="origin-globe-wrap"><div class="origin-globe-canvas" id="botanicalGlobe"></div><div class="origin-globe-loading" id="botanicalGlobeLoading">Memuat globe…</div></div><div class="origin-globe-legend"><span class="origin-globe-key"><span class="origin-globe-dot"></span>'+esc(range.label)+'</span><span>'+countText+' · geser untuk memutar · scroll untuk memperbesar</span></div><div class="origin-globe-countrylist" id="botanicalGlobeCountryList"><strong>Wilayah yang ditampilkan:</strong> <span>Memuat…</span></div><p class="origin-globe-note">Peta menggunakan batas negara dari World Atlas / Natural Earth. Sorotan merupakan visualisasi tingkat negara dan tidak dimaksudkan sebagai peta distribusi populasi spesies yang presisi.</p></div></section>';
+  return '<section class="origin-globe-section" data-testid="section-persebaran"><div class="origin-globe-card"><div class="origin-globe-head"><div><div class="origin-globe-kicker">Asal & Persebaran</div><h2>Di mana tanaman ini berasal?</h2><p>Globe 3D yang menyorot <strong>'+esc(p.nama)+'</strong> berdasarkan wilayah asal botani yang tersedia.</p></div><span class="origin-globe-demo">Persebaran</span></div><div class="origin-globe-wrap"><div class="origin-globe-canvas" id="botanicalGlobe"></div><div class="origin-globe-controls" aria-label="Kontrol zoom globe"><button type="button" class="origin-globe-control" data-globe-zoom="in" aria-label="Perbesar globe" title="Perbesar">+</button><button type="button" class="origin-globe-control reset" data-globe-zoom="reset" aria-label="Reset tampilan globe" title="Reset tampilan">↺</button><button type="button" class="origin-globe-control" data-globe-zoom="out" aria-label="Perkecil globe" title="Perkecil">−</button></div><div class="origin-globe-loading" id="botanicalGlobeLoading">Memuat globe…</div></div><div class="origin-globe-legend"><span class="origin-globe-key"><span class="origin-globe-dot"></span>'+esc(range.label)+'</span><span>'+countText+' · geser untuk memutar · cubit / gunakan + dan − untuk zoom</span></div><div class="origin-globe-countrylist" id="botanicalGlobeCountryList"><strong>Wilayah yang ditampilkan:</strong> <span>Memuat…</span></div><p class="origin-globe-note">Peta menggunakan batas negara dari World Atlas / Natural Earth. Sorotan merupakan visualisasi tingkat negara dan tidak dimaksudkan sebagai peta distribusi populasi spesies yang presisi.</p></div></section>';
 }
 function hexToRgba(hex,alpha){
   const s=String(hex||'').replace('#','').trim();
@@ -466,13 +485,15 @@ async function initBotanicalGlobe(p){
   const host=document.getElementById('botanicalGlobe'),loading=document.getElementById('botanicalGlobeLoading');
   if(!host)return;
   const token=++botanicalGlobeLoadToken;
-  const rawRange=p.botanicalGlobe&&typeof p.botanicalGlobe==='object'?p.botanicalGlobe:{};const range={countries:Array.isArray(rawRange.countries)?rawRange.countries:[],label:rawRange.label||'Data persebaran belum dipetakan',focus:Array.isArray(rawRange.focus)&&rawRange.focus.length===2?rawRange.focus:[15,20]};
+  const rawRange=p.botanicalGlobe&&typeof p.botanicalGlobe==='object'?p.botanicalGlobe:{};
+  const range={countries:Array.isArray(rawRange.countries)?rawRange.countries:[],label:rawRange.label||'Data persebaran belum dipetakan',focus:Array.isArray(rawRange.focus)&&rawRange.focus.length===2?rawRange.focus:[15,20]};
+  botanicalGlobeHomePOV={lat:range.focus[0],lng:range.focus[1],altitude:2.05};
   try{
     const assets=await loadBotanicalGlobeAssets();
     if(token!==botanicalGlobeLoadToken||!document.getElementById('botanicalGlobe'))return;
-    const {Globe,countries}=assets;
+    const {Globe,countries,countryNamesById}=assets;
     const highlighted=new Set(range.countries.map(String));
-    const countryNames=countries.filter(d=>highlighted.has(String(d.id))).map(d=>d.properties?.name).filter(Boolean);
+    const countryNames=range.countries.map(id=>countryNamesById.get(String(id))).filter(Boolean);
     const countryList=document.getElementById('botanicalGlobeCountryList');
     if(countryList){
       const span=countryList.querySelector('span');
@@ -497,14 +518,34 @@ async function initBotanicalGlobe(p){
       .polygonsData(countries);
     const renderer=botanicalGlobeInstance.renderer();
     if(renderer){
-      const dpr=window.devicePixelRatio||1;
-      if(dpr>2)renderer.setPixelRatio(2);
+      const mobile=window.matchMedia?.('(max-width:760px)').matches;
+      const cores=navigator.hardwareConcurrency||8;
+      const maxDpr=mobile?(cores<=4?1.25:1.5):1.75;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,maxDpr));
+      renderer.shadowMap.enabled=false;
     }
     const controls=botanicalGlobeInstance.controls();
     controls.autoRotate=true;
     controls.autoRotateSpeed=.32;
     controls.enablePan=false;
-    botanicalGlobeInstance.pointOfView({lat:range.focus[0],lng:range.focus[1],altitude:2.05},900);
+    controls.enableZoom=true;
+    controls.zoomSpeed=0.72;
+    controls.screenSpacePanning=false;
+    host.style.touchAction='none';
+    botanicalGlobeInstance.pointOfView({...botanicalGlobeHomePOV},650);
+    const controlWrap=host.parentElement?.querySelector('.origin-globe-controls');
+    if(controlWrap){
+      controlWrap.addEventListener('pointerdown',e=>{
+        const button=e.target.closest('[data-globe-zoom]');
+        if(!button)return;
+        e.preventDefault();
+        e.stopPropagation();
+        const action=button.dataset.globeZoom;
+        if(action==='in')botanicalGlobeSetZoom(.78);
+        else if(action==='out')botanicalGlobeSetZoom(1.28);
+        else botanicalGlobeResetView();
+      },{passive:false});
+    }
     if(loading)loading.style.display='none';
     if('ResizeObserver' in window){
       botanicalGlobeResizeObserver=new ResizeObserver(()=>{
