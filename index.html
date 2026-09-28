@@ -500,16 +500,21 @@ async function initBotanicalGlobe(p){
       if(span)span.textContent=countryNames.length?countryNames.join(' · '):(range.label||'Tidak tersedia pada level negara');
     }
     const accent=p.aksen||'#4C8C4A';
+    const globeIsDark=()=>document.documentElement.classList.contains('dark');
+    const globeImageForTheme=()=>globeIsDark()?'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg':'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg';
+    const globeCountryFill=()=>globeIsDark()?'rgba(255,255,255,.022)':'rgba(35,65,42,.045)';
+    const globeCountrySide=()=>globeIsDark()?'rgba(255,255,255,.016)':'rgba(35,65,42,.055)';
+    const globeCountryStroke=()=>globeIsDark()?'rgba(255,255,255,.08)':'rgba(35,65,42,.16)';
     host.innerHTML='';
     botanicalGlobeInstance=new Globe(host)
-      .globeImageUrl('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg')
+      .globeImageUrl(globeImageForTheme())
       .backgroundColor('rgba(0,0,0,0)')
       .showAtmosphere(false)
       .atmosphereColor(accent)
       .atmosphereAltitude(.08)
-      .polygonCapColor(d=>highlighted.has(String(d.id))?accent:'rgba(255,255,255,0.022)')
-      .polygonSideColor(d=>highlighted.has(String(d.id))?hexToRgba(accent,.24):'rgba(255,255,255,.016)')
-      .polygonStrokeColor(()=> 'rgba(255,255,255,.08)')
+      .polygonCapColor(d=>highlighted.has(String(d.id))?accent:globeCountryFill())
+      .polygonSideColor(d=>highlighted.has(String(d.id))?hexToRgba(accent,.24):globeCountrySide())
+      .polygonStrokeColor(()=>globeCountryStroke())
       .polygonAltitude(d=>highlighted.has(String(d.id))?.014:.002)
       .polygonLabel(d=>d.properties?.name?'<b>'+esc(d.properties.name)+'</b>':'')
       .enablePointerInteraction(true)
@@ -523,6 +528,13 @@ async function initBotanicalGlobe(p){
       const maxDpr=mobile?(cores<=4?1.25:1.5):1.75;
       renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,maxDpr));
       renderer.shadowMap.enabled=false;
+    }
+    const globeMaterial=botanicalGlobeInstance.globeMaterial?.();
+    if(globeMaterial){
+      const dark=globeIsDark();
+      globeMaterial.emissive?.set(dark?'#243A25':'#000000');
+      if('emissiveIntensity' in globeMaterial)globeMaterial.emissiveIntensity=dark?.22:0;
+      globeMaterial.needsUpdate=true;
     }
     const controls=botanicalGlobeInstance.controls();
     controls.autoRotate=true;
@@ -609,8 +621,24 @@ function route(){
   });
   window.scrollTo(0,0)
 }
+function applyBotanicalGlobeTheme(){
+  if(!botanicalGlobeInstance)return;
+  const dark=document.documentElement.classList.contains('dark');
+  try{
+    botanicalGlobeInstance.globeImageUrl(dark?'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-dark.jpg':'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg');
+    const material=botanicalGlobeInstance.globeMaterial?.();
+    if(material){
+      material.emissive?.set(dark?'#243A25':'#000000');
+      if('emissiveIntensity' in material)material.emissiveIntensity=dark?.22:0;
+      material.needsUpdate=true;
+    }
+    botanicalGlobeInstance.polygonCapColor(d=>document.documentElement.classList.contains('dark')?'rgba(255,255,255,.022)':'rgba(35,65,42,.045)');
+    botanicalGlobeInstance.polygonSideColor(d=>document.documentElement.classList.contains('dark')?'rgba(255,255,255,.016)':'rgba(35,65,42,.055)');
+    botanicalGlobeInstance.polygonStrokeColor(()=>document.documentElement.classList.contains('dark')?'rgba(255,255,255,.08)':'rgba(35,65,42,.16)');
+  }catch(err){console.warn('Nano Fruits Pedia globe theme:',err)}
+}
 function syncThemeUI(){const d=document.documentElement.classList.contains('dark');const btn=$('#themeToggle'),meta=$('#themeColor');if(btn){btn.textContent=d?'☀':'☾';btn.setAttribute('aria-label',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('title',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('aria-pressed',d?'true':'false')}if(meta)meta.setAttribute('content',d?'#0B100C':'#2C5E3B')}
-$('#themeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark');localStorage.setItem('nfp-theme',d?'dark':'light');syncThemeUI()});
+$('#themeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark');localStorage.setItem('nfp-theme',d?'dark':'light');syncThemeUI();applyBotanicalGlobeTheme()});
 syncThemeUI()
 $('#app').addEventListener('click',async e=>{const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='back')location.hash='#/';if(a.dataset.action==='next-fact'){const pool=factItems();if(pool.length){factCursor=(factCursor+1)%factOrder.length;const next=factOrder[factCursor];localStorage.setItem('nfp-last-fact-text',pool[next]?.text||'')}renderFactCard();return}if(a.dataset.action==='favorite'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(p)toast(toggleFavorite(p.slug)?'Ditambahkan ke favorit ♥':'Dihapus dari favorit')}if(a.dataset.action==='print')print();if(a.dataset.action==='share'){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));if(!p)return;const sd={title:`${p.nama} — Nano Fruits Pedia`,text:`Baca info lengkap ${p.nama} (${p.latin}) di Nano Fruits Pedia`,url:location.href};try{if(navigator.share)await navigator.share(sd);else{await navigator.clipboard.writeText(location.href);toast('Tautan disalin ke clipboard!')}}catch{}}}const g=e.target.closest('[data-gallery]');if(g){const m=(location.hash||'').match(/^#\/tanaman\/([^/?#]+)/),p=m&&getPlant(decodeURIComponent(m[1]));const i=Number(g.dataset.gallery),item=p?.galeri?.[i];if(!item)return;$('#galleryMain').src=item.url;$('#galleryMain').alt=item.caption;$('#galleryCaption').textContent=item.caption;document.querySelectorAll('.thumb').forEach((x,j)=>{x.classList.toggle('active',j===i);x.style.borderColor=j===i?p.aksen:'transparent'})}});
 function renderCollectionResults(){
