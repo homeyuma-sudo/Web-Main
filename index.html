@@ -180,11 +180,11 @@ html.dark input,html.dark button{color-scheme:dark}
 .school-observation-photos img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
 /* Botanical globe: native-range visualization */
 .origin-globe-section{margin:34px 0 0;contain:layout;min-width:0;max-width:100%;overflow:hidden}.origin-globe-card{position:relative;overflow:hidden;min-width:0;max-width:100%;border:1px solid var(--border);border-radius:28px;background:linear-gradient(135deg,var(--card),var(--soft2));box-shadow:var(--shadow);padding:28px}.origin-globe-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:20px}.origin-globe-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;color:var(--primary);margin-bottom:6px}.origin-globe-head h2{margin:0;font:600 clamp(34px,4vw,46px)/1 "Cormorant Garamond";letter-spacing:-.025em}.origin-globe-head p{margin:8px 0 0;max-width:650px;color:var(--muted);font-size:14px;line-height:1.65}.origin-globe-demo{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 11px;border:1px solid var(--border);border-radius:999px;color:var(--muted);white-space:nowrap}.origin-globe-wrap{position:relative;min-height:440px;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 42%,rgba(77,117,82,.10),transparent 52%),var(--bg);border:1px solid var(--border);isolation:isolate}.origin-globe-wrap{position:relative;isolation:isolate;overflow:hidden}
-.origin-globe-wrap::before{content:"";position:absolute;inset:7% 12% 4%;z-index:0;pointer-events:none;border-radius:50%;background:radial-gradient(circle at 50% 43%,rgba(76,140,74,.07),transparent 64%);filter:blur(10px)}
+.origin-globe-wrap::before{content:"";position:absolute;inset:7% 12% 4%;z-index:0;pointer-events:none;border-radius:50%;background:radial-gradient(circle at 50% 43%,rgba(191,214,221,.20),transparent 64%);filter:blur(13px)}
 .origin-globe-canvas{position:relative;z-index:1;width:100%;height:440px;touch-action:none;user-select:none;-webkit-user-select:none}
-.origin-globe-canvas canvas{display:block;width:100%;height:100%;filter:saturate(.9) contrast(.97) drop-shadow(0 24px 34px rgba(30,41,35,.24))}
-html.dark .origin-globe-wrap::before{background:radial-gradient(circle at 50% 43%,rgba(123,184,128,.10),transparent 64%)}
-html.dark .origin-globe-canvas canvas{filter:saturate(1.08) contrast(1.04) brightness(.86) drop-shadow(0 26px 36px rgba(0,0,0,.64))}.origin-globe-loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;pointer-events:none}.origin-globe-controls{position:absolute;z-index:4;top:14px;right:14px;display:flex;flex-direction:column;gap:7px}.origin-globe-control{display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(20,27,21,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:21px;line-height:1;box-shadow:0 10px 26px -18px rgba(0,0,0,.75);-webkit-tap-highlight-color:transparent}.origin-globe-control:hover{background:rgba(31,43,33,.9);border-color:rgba(255,255,255,.28)}.origin-globe-control:active{transform:scale(.94)}.origin-globe-control.reset{font-size:17px}.origin-globe-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:16px;font-size:12px;color:var(--muted)}.origin-globe-key{display:inline-flex;align-items:center;gap:7px}.origin-globe-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 14px color-mix(in srgb,var(--primary) 55%,transparent)}.origin-globe-countrylist{margin-top:14px;font-size:12px;line-height:1.7;color:var(--muted)}.origin-globe-countrylist strong{color:var(--fg);font-weight:700}.origin-globe-note{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.6}.origin-globe-error{display:grid;place-items:center;min-height:440px;padding:28px;text-align:center;color:var(--muted)}.dark .origin-globe-wrap{background:radial-gradient(circle at 50% 42%,rgba(130,188,118,.08),transparent 52%),#0B100C}@media(max-width:760px){.content,.origin-globe-section,.origin-globe-card,.origin-globe-wrap,.origin-globe-canvas{width:100%;max-width:100%;min-width:0}.content{overflow-x:clip}.origin-globe-card{padding:18px;border-radius:22px}.origin-globe-head{align-items:flex-start;flex-direction:column;gap:12px;width:100%;min-width:0}.origin-globe-head>div{width:100%;min-width:0}.origin-globe-head h2{font-size:clamp(30px,8.2vw,38px);max-width:100%;overflow-wrap:break-word}.origin-globe-head p{width:100%;max-width:100%;min-width:0;font-size:13.5px;line-height:1.6;overflow-wrap:break-word;word-break:normal}.origin-globe-demo{align-self:flex-start}.origin-globe-wrap,.origin-globe-canvas{min-height:clamp(260px,72vw,320px);height:clamp(260px,72vw,320px)}.origin-globe-controls{top:9px;right:9px;gap:7px}.origin-globe-control{width:40px;height:40px;border-radius:12px}.origin-globe-legend{gap:7px 12px;width:100%;min-width:0;font-size:11.5px}.origin-globe-legend>span{min-width:0;max-width:100%}.origin-globe-legend>span:last-child{width:100%;max-width:100%;overflow-wrap:break-word}.origin-globe-countrylist,.origin-globe-note{width:100%;max-width:100%;min-width:0;overflow-wrap:break-word}}
+.origin-globe-canvas canvas{display:block;width:100%;height:100%;filter:grayscale(.72) saturate(.38) brightness(1.08) contrast(.9) drop-shadow(0 24px 34px rgba(65,84,88,.22))}
+html.dark .origin-globe-wrap::before{background:radial-gradient(circle at 50% 43%,rgba(237,244,240,.11),transparent 64%)}
+html.dark .origin-globe-canvas canvas{filter:grayscale(1) saturate(.08) brightness(1.12) contrast(1.16) drop-shadow(0 0 12px rgba(238,245,241,.16)) drop-shadow(0 26px 36px rgba(0,0,0,.72))}.origin-globe-loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;pointer-events:none}.origin-globe-controls{position:absolute;z-index:4;top:14px;right:14px;display:flex;flex-direction:column;gap:7px}.origin-globe-control{display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid rgba(255,255,255,.16);border-radius:12px;background:rgba(20,27,21,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:21px;line-height:1;box-shadow:0 10px 26px -18px rgba(0,0,0,.75);-webkit-tap-highlight-color:transparent}.origin-globe-control:hover{background:rgba(31,43,33,.9);border-color:rgba(255,255,255,.28)}.origin-globe-control:active{transform:scale(.94)}.origin-globe-control.reset{font-size:17px}.origin-globe-legend{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:16px;font-size:12px;color:var(--muted)}.origin-globe-key{display:inline-flex;align-items:center;gap:7px}.origin-globe-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);box-shadow:0 0 14px color-mix(in srgb,var(--primary) 55%,transparent)}.origin-globe-countrylist{margin-top:14px;font-size:12px;line-height:1.7;color:var(--muted)}.origin-globe-countrylist strong{color:var(--fg);font-weight:700}.origin-globe-note{margin:12px 0 0;font-size:11px;color:var(--muted);line-height:1.6}.origin-globe-error{display:grid;place-items:center;min-height:440px;padding:28px;text-align:center;color:var(--muted)}.dark .origin-globe-wrap{background:radial-gradient(circle at 50% 42%,rgba(240,247,242,.06),transparent 52%),#080C09}@media(max-width:760px){.content,.origin-globe-section,.origin-globe-card,.origin-globe-wrap,.origin-globe-canvas{width:100%;max-width:100%;min-width:0}.content{overflow-x:clip}.origin-globe-card{padding:18px;border-radius:22px}.origin-globe-head{align-items:flex-start;flex-direction:column;gap:12px;width:100%;min-width:0}.origin-globe-head>div{width:100%;min-width:0}.origin-globe-head h2{font-size:clamp(30px,8.2vw,38px);max-width:100%;overflow-wrap:break-word}.origin-globe-head p{width:100%;max-width:100%;min-width:0;font-size:13.5px;line-height:1.6;overflow-wrap:break-word;word-break:normal}.origin-globe-demo{align-self:flex-start}.origin-globe-wrap,.origin-globe-canvas{min-height:clamp(260px,72vw,320px);height:clamp(260px,72vw,320px)}.origin-globe-controls{top:9px;right:9px;gap:7px}.origin-globe-control{width:40px;height:40px;border-radius:12px}.origin-globe-legend{gap:7px 12px;width:100%;min-width:0;font-size:11.5px}.origin-globe-legend>span{min-width:0;max-width:100%}.origin-globe-legend>span:last-child{width:100%;max-width:100%;overflow-wrap:break-word}.origin-globe-countrylist,.origin-globe-note{width:100%;max-width:100%;min-width:0;overflow-wrap:break-word}}
 </style>
 <script>(function(){const s=localStorage.getItem('nfp-theme');const dark=s?s==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(dark)document.documentElement.classList.add('dark')})()</script>
 </head>
@@ -598,12 +598,12 @@ function styleBotanicalGlobeMaterial(material,dark){
   if(!material)return;
   try{
     /* Preserve the same optimized texture while using material color as a cheap theme grade. */
-    material.color?.set(dark?'#707870':'#F5F1E7');
-    material.emissive?.set(dark?'#19321F':'#000000');
-    if('emissiveIntensity' in material)material.emissiveIntensity=dark?.085:0;
-    if('specular' in material)material.specular?.set(dark?'#334039':'#6D746B');
-    if('shininess' in material)material.shininess=dark?7:12;
-    if('roughness' in material)material.roughness=dark?.9:.82;
+    material.color?.set(dark?'#B7C0BA':'#EFF5F7');
+    material.emissive?.set(dark?'#DCE6DF':'#C8D8DE');
+    if('emissiveIntensity' in material)material.emissiveIntensity=dark?.045:.10;
+    if('specular' in material)material.specular?.set(dark?'#EEF4F0':'#A9B9BE');
+    if('shininess' in material)material.shininess=dark?5:14;
+    if('roughness' in material)material.roughness=dark?.94:.78;
     if('metalness' in material)material.metalness=0;
     material.needsUpdate=true;
   }catch(err){
@@ -634,11 +634,11 @@ async function initBotanicalGlobe(p){
     const accent=p.aksen||'#4C8C4A';
     countries.forEach(d=>{d.__nfpAccent=accent});
     const globeIsDark=()=>document.documentElement.classList.contains('dark');
-    /* One shared, colorful Earth texture keeps both themes consistent and avoids an extra texture request. */
-    const globeImageForTheme=()=>'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg';
-    const globeCountryFill=()=>globeIsDark()?'rgba(184,211,190,.055)':'rgba(35,65,42,.035)';
-    const globeCountrySide=()=>globeIsDark()?'rgba(184,211,190,.026)':'rgba(35,65,42,.045)';
-    const globeCountryStroke=()=>globeIsDark()?'rgba(184,211,190,.14)':'rgba(35,65,42,.15)';
+    /* Theme-specific Earth textures: a soft monochrome day globe and a white-lit night globe. */
+    const globeImageForTheme=()=>globeIsDark()?'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg':'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg';
+    const globeCountryFill=()=>globeIsDark()?'rgba(240,246,242,.025)':'rgba(255,255,255,.10)';
+    const globeCountrySide=()=>globeIsDark()?'rgba(240,246,242,.018)':'rgba(95,113,116,.055)';
+    const globeCountryStroke=()=>globeIsDark()?'rgba(240,246,242,.34)':'rgba(95,113,116,.22)';
     host.innerHTML='';
     botanicalGlobeInstance=new Globe(host)
       .globeImageUrl(globeImageForTheme())
@@ -754,13 +754,13 @@ function applyBotanicalGlobeTheme(){
   if(!botanicalGlobeInstance)return;
   const dark=document.documentElement.classList.contains('dark');
   try{
-    /* Same colorful texture in both themes; the material grade below does the dark/light treatment. */
-    botanicalGlobeInstance.globeImageUrl('https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg');
+    /* Keep the live globe texture aligned with the active theme. */
+    botanicalGlobeInstance.globeImageUrl(dark?'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg':'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg');
     const material=botanicalGlobeInstance.globeMaterial?.();
     if(material)styleBotanicalGlobeMaterial(material,dark);
-    botanicalGlobeInstance.polygonCapColor(d=>botanicalGlobeHighlightedCountries.has(String(d.id))?(d.__nfpAccent||'#4C8C4A'):(dark?'rgba(184,211,190,.055)':'rgba(35,65,42,.035)'));
-    botanicalGlobeInstance.polygonSideColor(d=>botanicalGlobeHighlightedCountries.has(String(d.id))?hexToRgba(d.__nfpAccent||'#4C8C4A',.24):(dark?'rgba(184,211,190,.026)':'rgba(35,65,42,.045)'));
-    botanicalGlobeInstance.polygonStrokeColor(()=>dark?'rgba(184,211,190,.14)':'rgba(35,65,42,.15)');
+    botanicalGlobeInstance.polygonCapColor(d=>botanicalGlobeHighlightedCountries.has(String(d.id))?(d.__nfpAccent||'#4C8C4A'):(dark?'rgba(240,246,242,.025)':'rgba(255,255,255,.10)'));
+    botanicalGlobeInstance.polygonSideColor(d=>botanicalGlobeHighlightedCountries.has(String(d.id))?hexToRgba(d.__nfpAccent||'#4C8C4A',.24):(dark?'rgba(240,246,242,.018)':'rgba(95,113,116,.055)'));
+    botanicalGlobeInstance.polygonStrokeColor(()=>dark?'rgba(240,246,242,.34)':'rgba(95,113,116,.22)');
   }catch(err){console.warn('Nano Fruits Pedia globe theme:',err)}
 }
 function syncThemeUI(){const d=document.documentElement.classList.contains('dark');const btn=$('#themeToggle'),meta=$('#themeColor');if(btn){btn.textContent=d?'☀':'☾';btn.setAttribute('aria-label',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('title',d?'Aktifkan mode terang':'Aktifkan mode gelap');btn.setAttribute('aria-pressed',d?'true':'false')}if(meta)meta.setAttribute('content',d?'#0B100C':'#2C5E3B')}
